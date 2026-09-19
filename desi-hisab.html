@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="ur-Latn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Desi Hisab — Rozana ke Calculators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #EEF0F7;
+    --surface: #FFFFFF;
+    --surface-2: #E3E7F3;
+    --text: #0C1834;
+    --text-muted: #4E5B7C;
+    --gold: #9C7311;
+    --gold-soft: #C89A2E;
+    --jade: #26398C;
+    --jade-soft: #4A5FB8;
+    --border: #D3D9EB;
+    --danger: #A8432E;
+    --shadow-1: rgba(12,24,52,0.10);
+    --shadow-2: rgba(12,24,52,0.20);
+    --radius-card: 22px;
+    --font-head: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg: #0A1030;
+      --surface: #131C4A;
+      --surface-2: #1B265C;
+      --text: #F3F0E6;
+      --text-muted: #B7C0E0;
+      --gold: #E9C25C;
+      --gold-soft: #F5DA8D;
+      --jade: #6C8CFF;
+      --jade-soft: #93AAFF;
+      --border: #283264;
+      --danger: #E08468;
+      --shadow-1: rgba(0,0,10,0.35);
+      --shadow-2: rgba(0,0,10,0.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg: #0A1030;
+    --surface: #131C4A;
+    --surface-2: #1B265C;
+    --text: #F3F0E6;
+    --text-muted: #B7C0E0;
+    --gold: #E9C25C;
+    --gold-soft: #F5DA8D;
+    --jade: #6C8CFF;
+    --jade-soft: #93AAFF;
+    --border: #283264;
+    --danger: #E08468;
+    --shadow-1: rgba(0,0,10,0.35);
+    --shadow-2: rgba(0,0,10,0.5);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px;}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px;}
+
+  /* ---------- Header ---------- */
+  header.site{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:28px 0 8px;
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    font-family:var(--font-head);font-weight:600;font-size:1.25rem;
+    letter-spacing:0.01em;
+  }
+  .brand .coin-mini{
+    width:26px;height:26px;border-radius:50%;
+    background:linear-gradient(155deg,var(--gold-soft),var(--gold));
+    box-shadow:0 2px 5px var(--shadow-1), inset 0 -2px 4px rgba(0,0,0,0.25);
+    flex-shrink:0;
+  }
+  nav.crumbs{display:flex;gap:6px;font-size:0.85rem;color:var(--text-muted);}
+  nav.crumbs button{
+    background:none;border:none;color:var(--text-muted);cursor:pointer;
+    padding:6px 10px;border-radius:20px;transition:background .15s, color .15s;
+  }
+  nav.crumbs button.active{background:var(--surface-2);color:var(--text);}
+  nav.crumbs button:hover{color:var(--text);}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    display:grid;grid-template-columns:1.15fr 0.85fr;gap:40px;
+    align-items:center;padding:46px 0 54px;
+  }
+  .hero h1{
+    font-family:var(--font-head);
+    font-weight:600;
+    font-size:clamp(2.1rem, 4.3vw, 3.4rem);
+    line-height:1.06;
+    margin:0 0 18px;
+    letter-spacing:-0.01em;
+  }
+  .hero h1 em{
+    font-style:italic;color:var(--gold);
+  }
+  .hero p{
+    color:var(--text-muted);
+    font-size:1.05rem;
+    max-width:46ch;
+    margin:0 0 26px;
+  }
+  .hero-cta{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--jade);color:#F5F1E4;
+    border:none;padding:13px 22px;border-radius:14px;
+    font-size:0.98rem;font-weight:600;cursor:pointer;
+    box-shadow:0 8px 18px var(--shadow-1);
+    transition:transform .15s ease;
+  }
+  .hero-cta:hover{transform:translateY(-2px);}
+
+  /* ---------- 3D coin stack ---------- */
+  .coin-stage{
+    perspective:900px;
+    display:flex;align-items:center;justify-content:center;
+    height:280px;
+  }
+  .coin-stack{
+    position:relative;width:180px;height:180px;
+    transform-style:preserve-3d;
+    animation:spinCoins 16s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .coin-stack{animation:none;}
+  }
+  .coin{
+    position:absolute;inset:0;border-radius:50%;
+    background:
+      radial-gradient(circle at 32% 28%, var(--gold-soft), var(--gold) 55%, #8B5E14 100%);
+    box-shadow:
+      inset 0 0 0 6px rgba(255,255,255,0.18),
+      inset 0 0 0 8px rgba(0,0,0,0.12);
+    backface-visibility:hidden;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-head);font-size:2.6rem;color:rgba(90,60,10,0.55);
+  }
+  .coin.c1{transform:translateZ(18px);}
+  .coin.c2{transform:translateZ(6px) rotateX(2deg);}
+  .coin.c3{transform:translateZ(-6px) rotateX(-2deg);}
+  .coin.c4{transform:translateZ(-18px);}
+  @keyframes spinCoins{
+    from{transform:rotateY(0deg) rotateX(8deg);}
+    to{transform:rotateY(360deg) rotateX(8deg);}
+  }
+
+  /* ---------- Tool grid ---------- */
+  .tools-heading{
+    font-family:var(--font-head);font-weight:600;font-size:1.5rem;
+    margin:0 0 6px;
+  }
+  .tools-sub{color:var(--text-muted);margin:0 0 26px;font-size:0.98rem;}
+
+  .tool-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:20px;
+    padding-bottom:54px;
+    perspective:1200px;
+  }
+  @media(max-width:820px){.tool-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:480px){.tool-grid{grid-template-columns:1fr;}}
+
+  .tool-card{
+    position:relative;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-card);
+    padding:26px 20px 22px;
+    cursor:pointer;
+    transform-style:preserve-3d;
+    transition:transform .25s ease, box-shadow .25s ease;
+    box-shadow:0 10px 22px var(--shadow-1);
+    text-align:left;
+  }
+  .tool-card:hover, .tool-card:focus-visible{
+    transform:rotateX(6deg) rotateY(-6deg) translateY(-6px);
+    box-shadow:0 22px 34px var(--shadow-2);
+  }
+  .tool-card .icon3d{
+    width:52px;height:52px;margin-bottom:16px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:14px;
+    background:linear-gradient(155deg,var(--surface-2),transparent);
+    transform:translateZ(24px);
+    font-size:1.6rem;
+  }
+  .tool-card h3{
+    font-family:var(--font-head);font-size:1.12rem;font-weight:600;
+    margin:0 0 6px;transform:translateZ(14px);
+  }
+  .tool-card p{
+    font-size:0.88rem;color:var(--text-muted);margin:0;
+    transform:translateZ(10px);
+  }
+
+  /* ---------- Calculator panels ---------- */
+  .panel{
+    display:none;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-card);
+    padding:34px clamp(20px,4vw,44px) 40px;
+    margin-bottom:60px;
+    box-shadow:0 14px 30px var(--shadow-1);
+  }
+  .panel.active{display:block;animation:riseIn .35s ease;}
+  @keyframes riseIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  @media (prefers-reduced-motion: reduce){.panel.active{animation:none;}}
+
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:24px;flex-wrap:wrap;gap:10px;
+  }
+  .panel-head h2{
+    font-family:var(--font-head);font-size:1.5rem;margin:0;font-weight:600;
+  }
+  .back-btn{
+    background:none;border:1px solid var(--border);color:var(--text-muted);
+    padding:8px 14px;border-radius:20px;cursor:pointer;font-size:0.85rem;
+  }
+  .back-btn:hover{color:var(--text);border-color:var(--gold);}
+
+  .field-row{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px;}
+  @media(max-width:600px){.field-row{grid-template-columns:1fr;}}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{font-size:0.86rem;color:var(--text-muted);}
+  .rate-tag{
+    display:inline-block;margin-left:6px;font-size:0.72rem;
+    background:var(--jade);color:#F5F1E4;padding:2px 8px;border-radius:10px;
+    vertical-align:middle;
+  }
+  .field input, .field select{
+    background:var(--bg);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:11px 13px;border-radius:10px;font-size:0.98rem;font-family:inherit;
+  }
+  .field input:focus, .field select:focus{border-color:var(--gold);}
+
+  .seg{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:3px;margin-bottom:20px;}
+  .seg button{
+    background:none;border:none;padding:8px 16px;border-radius:9px;cursor:pointer;
+    color:var(--text-muted);font-size:0.88rem;font-weight:600;
+  }
+  .seg button.active{background:var(--jade);color:#F5F1E4;}
+
+  .calc-btn{
+    background:var(--gold);color:#2A1E05;border:none;
+    padding:13px 24px;border-radius:12px;font-weight:700;font-size:0.98rem;
+    cursor:pointer;margin-top:6px;
+  }
+  .calc-btn:hover{background:var(--gold-soft);}
+
+  .result-card{
+    margin-top:26px;background:var(--surface-2);border-radius:16px;
+    padding:22px 24px;border:1px solid var(--border);
+  }
+  .result-main{
+    font-family:var(--font-head);font-size:2rem;font-weight:600;color:var(--jade);
+    margin:0 0 4px;
+  }
+  .result-main.due{color:var(--danger);}
+  .result-label{font-size:0.85rem;color:var(--text-muted);margin:0 0 18px;}
+  .result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;}
+  .result-item .k{font-size:0.78rem;color:var(--text-muted);}
+  .result-item .v{font-size:1.02rem;font-weight:600;}
+
+  .note{font-size:0.82rem;color:var(--text-muted);margin-top:18px;line-height:1.6;}
+
+  footer{
+    text-align:center;padding:30px 0 50px;color:var(--text-muted);font-size:0.85rem;
+    border-top:1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="site">
+    <div class="brand"><span class="coin-mini"></span>Desi Hisab</div>
+    <nav class="crumbs" id="crumbs">
+      <button data-target="home" class="active">Home</button>
+      <button data-target="zakat">Zakat</button>
+      <button data-target="tax">Tax</button>
+      <button data-target="unit">Unit</button>
+      <button data-target="age">Umar</button>
+    </nav>
+  </header>
+
+  <!-- ===================== HOME ===================== -->
+  <section id="panel-home">
+    <div class="hero">
+      <div>
+        <h1>Rozana ke <em>hisab-kitab</em>,<br>ek hi jagah.</h1>
+        <p>Zakat, tax, paimaish aur umar ka hisab — Pakistan ke context ke hisab se, bina sign-up ke, bilkul free.</p>
+        <button class="hero-cta" onclick="showPanel('zakat')">Zakat se shuru karein →</button>
+      </div>
+      <div class="coin-stage">
+        <div class="coin-stack">
+          <div class="coin c4"></div>
+          <div class="coin c3"></div>
+          <div class="coin c2"></div>
+          <div class="coin c1">₨</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="tools-heading">Tools</h2>
+    <p class="tools-sub">Jo chahiye, us par click karein.</p>
+    <div class="tool-grid">
+      <button class="tool-card" onclick="showPanel('zakat')">
+        <div class="icon3d">🪙</div>
+        <h3>Zakat Calculator</h3>
+        <p>Cash, sona, chandi aur business assets par zakat nikalein.</p>
+      </button>
+      <button class="tool-card" onclick="showPanel('tax')">
+        <div class="icon3d">🧾</div>
+        <h3>Salary Tax</h3>
+        <p>FY 2025–26 FBR slabs ke mutabiq apni tax nikalein.</p>
+      </button>
+      <button class="tool-card" onclick="showPanel('unit')">
+        <div class="icon3d">📏</div>
+        <h3>Unit Converter</h3>
+        <p>Length, weight — tola, seer, maund samet.</p>
+      </button>
+      <button class="tool-card" onclick="showPanel('age')">
+        <div class="icon3d">🎂</div>
+        <h3>Umar Calculator</h3>
+        <p>Date of birth se exact umar aur agla birthday.</p>
+      </button>
+    </div>
+  </section>
+
+  <!-- ===================== ZAKAT ===================== -->
+  <section class="panel" id="panel-zakat">
+    <div class="panel-head">
+      <h2>Zakat Calculator</h2>
+      <button class="back-btn" onclick="showPanel('home')">← Wapas</button>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Cash (hath/bank mein) — PKR</label>
+        <input type="number" id="z-cash" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label>Business inventory / receivables — PKR</label>
+        <input type="number" id="z-business" placeholder="0" min="0">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Sona (grams)</label>
+        <input type="number" id="z-gold-g" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label>Sone ka rate (PKR / gram) <span id="z-gold-rate-tag" class="rate-tag">aaj ka rate</span></label>
+        <input type="number" id="z-gold-p" placeholder="0" min="0" value="38874">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Chandi (grams)</label>
+        <input type="number" id="z-silver-g" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label>Chandi ka rate (PKR / gram) <span id="z-silver-rate-tag" class="rate-tag">aaj ka rate</span></label>
+        <input type="number" id="z-silver-p" placeholder="0" min="0" value="589">
+      </div>
+    </div>
+    <p class="note" id="z-rate-note">Rate ka data: 18 September 2026, APGJSA (24K sona ≈ Rs 453,336/tola, chandi ≈ Rs 6,869/tola). Rate din mein kai baar badalta hai — agar chahein to upar wali value edit kar dein, ya mujhse "rate update karo" keh dein.</p>
+    <div class="field-row">
+      <div class="field">
+        <label>Qarz / liabilities (jo aap par waajib hain) — PKR</label>
+        <input type="number" id="z-debt" placeholder="0" min="0">
+      </div>
+      <div class="field"></div>
+    </div>
+
+    <button class="calc-btn" onclick="calcZakat()">Zakat nikalein</button>
+
+    <div class="result-card" id="z-result" style="display:none">
+      <p class="result-main" id="z-amount">—</p>
+      <p class="result-label" id="z-status">—</p>
+      <div class="result-grid">
+        <div class="result-item"><div class="k">Total zakatable assets</div><div class="v" id="z-total">—</div></div>
+        <div class="result-item"><div class="k">Liabilities minus</div><div class="v" id="z-liab">—</div></div>
+        <div class="result-item"><div class="k">Nisab (silver-based)</div><div class="v" id="z-nisab-s">—</div></div>
+        <div class="result-item"><div class="k">Nisab (gold-based)</div><div class="v" id="z-nisab-g">—</div></div>
+      </div>
+      <p class="note">Ye ek sada tareeqa-e-hisab hai (2.5% ka standard rate, nisab silver ke aitbaar se). Har mas'ala mukhtalif ho sakta hai — kisi mustanad aalim se tasdeeq zaroor karein.</p>
+    </div>
+  </section>
+
+  <!-- ===================== TAX ===================== -->
+  <section class="panel" id="panel-tax">
+    <div class="panel-head">
+      <h2>Salary Tax Calculator</h2>
+      <button class="back-btn" onclick="showPanel('home')">← Wapas</button>
+    </div>
+
+    <div class="seg" id="t-seg">
+      <button class="active" data-mode="annual">Annual income</button>
+      <button data-mode="monthly">Monthly income</button>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label id="t-label">Annual taxable salary — PKR</label>
+        <input type="number" id="t-income" placeholder="0" min="0">
+      </div>
+      <div class="field"></div>
+    </div>
+
+    <button class="calc-btn" onclick="calcTax()">Tax nikalein</button>
+
+    <div class="result-card" id="t-result" style="display:none">
+      <p class="result-main" id="t-annual-tax">—</p>
+      <p class="result-label">Salana tax (fixed + slab rate ke mutabiq)</p>
+      <div class="result-grid">
+        <div class="result-item"><div class="k">Monthly tax</div><div class="v" id="t-monthly-tax">—</div></div>
+        <div class="result-item"><div class="k">Net annual (take-home)</div><div class="v" id="t-net-annual">—</div></div>
+        <div class="result-item"><div class="k">Net monthly (take-home)</div><div class="v" id="t-net-monthly">—</div></div>
+        <div class="result-item"><div class="k">Effective rate</div><div class="v" id="t-rate">—</div></div>
+      </div>
+      <p class="note">FBR salary tax slabs, Finance Act 2025–26 (1 July 2025 – 30 June 2026) ke mutabiq. 10 million PKR se zyada salana income par 9% surcharge tax amount par lagta hai (ye calculator mein shamil hai). Ye estimate hai — allowances/deductions ke sath actual tax mukhtalif ho sakta hai.</p>
+    </div>
+  </section>
+
+  <!-- ===================== UNIT CONVERTER ===================== -->
+  <section class="panel" id="panel-unit">
+    <div class="panel-head">
+      <h2>Unit Converter</h2>
+      <button class="back-btn" onclick="showPanel('home')">← Wapas</button>
+    </div>
+
+    <div class="seg" id="u-seg">
+      <button class="active" data-cat="length">Length</button>
+      <button data-cat="weight">Weight</button>
+      <button data-cat="temp">Temperature</button>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Value</label>
+        <input type="number" id="u-value" placeholder="0" value="1">
+      </div>
+      <div class="field"></div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Se (from)</label>
+        <select id="u-from"></select>
+      </div>
+      <div class="field">
+        <label>Tak (to)</label>
+        <select id="u-to"></select>
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calcUnit()">Convert karein</button>
+
+    <div class="result-card" id="u-result" style="display:none">
+      <p class="result-main" id="u-out">—</p>
+      <p class="result-label" id="u-out-label">—</p>
+      <p class="note" id="u-note"></p>
+    </div>
+  </section>
+
+  <!-- ===================== AGE ===================== -->
+  <section class="panel" id="panel-age">
+    <div class="panel-head">
+      <h2>Umar Calculator</h2>
+      <button class="back-btn" onclick="showPanel('home')">← Wapas</button>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Date of birth</label>
+        <input type="date" id="a-dob">
+      </div>
+      <div class="field"></div>
+    </div>
+
+    <button class="calc-btn" onclick="calcAge()">Umar nikalein</button>
+
+    <div class="result-card" id="a-result" style="display:none">
+      <p class="result-main" id="a-main">—</p>
+      <p class="result-label">Aapki umar</p>
+      <div class="result-grid">
+        <div class="result-item"><div class="k">Kul din</div><div class="v" id="a-days">—</div></div>
+        <div class="result-item"><div class="k">Agla birthday</div><div class="v" id="a-next">—</div></div>
+        <div class="result-item"><div class="k">Din baqi</div><div class="v" id="a-until">—</div></div>
+        <div class="result-item"><div class="k">Paidaish ka din</div><div class="v" id="a-weekday">—</div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Desi Hisab — Pakistan ke rozmarra ke hisab ke liye. Tax slabs: FBR, Finance Act 2025–26.</footer>
+</div>
+
+<script>
+function showPanel(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const home = document.getElementById('panel-home');
+  if(name==='home'){
+    home.style.display='block';
+  } else {
+    home.style.display='none';
+    document.getElementById('panel-'+name).classList.add('active');
+  }
+  document.querySelectorAll('#crumbs button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.target===name);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+document.querySelectorAll('#crumbs button').forEach(b=>{
+  b.addEventListener('click', ()=>showPanel(b.dataset.target));
+});
+
+function fmt(n){
+  if(isNaN(n)) return '—';
+  return 'PKR ' + Math.round(n).toLocaleString('en-PK');
+}
+
+/* ---------------- ZAKAT ---------------- */
+function calcZakat(){
+  const cash = parseFloat(document.getElementById('z-cash').value)||0;
+  const business = parseFloat(document.getElementById('z-business').value)||0;
+  const goldG = parseFloat(document.getElementById('z-gold-g').value)||0;
+  const goldP = parseFloat(document.getElementById('z-gold-p').value)||0;
+  const silverG = parseFloat(document.getElementById('z-silver-g').value)||0;
+  const silverP = parseFloat(document.getElementById('z-silver-p').value)||0;
+  const debt = parseFloat(document.getElementById('z-debt').value)||0;
+
+  const goldValue = goldG*goldP;
+  const silverValue = silverG*silverP;
+  const totalAssets = cash + business + goldValue + silverValue;
+  const netZakatable = Math.max(totalAssets - debt, 0);
+
+  const nisabSilver = silverP>0 ? 612.36*silverP : null;
+  const nisabGold = goldP>0 ? 87.48*goldP : null;
+  const nisab = nisabSilver!==null ? nisabSilver : nisabGold;
+
+  const eligible = nisab!==null && netZakatable>=nisab;
+  const zakatDue = eligible ? netZakatable*0.025 : 0;
+
+  document.getElementById('z-result').style.display='block';
+  document.getElementById('z-amount').textContent = fmt(zakatDue);
+  document.getElementById('z-amount').className = 'result-main' + (eligible?' due':'');
+  document.getElementById('z-status').textContent = nisab===null
+    ? 'Nisab check karne ke liye sone ya chandi ka rate darj karein.'
+    : (eligible ? 'Aap nisab tak pohanch chuke hain — zakat waajib hai.' : 'Aap nisab tak nahi pohanche — zakat waajib nahi (marzi se de sakte hain).');
+  document.getElementById('z-total').textContent = fmt(totalAssets);
+  document.getElementById('z-liab').textContent = fmt(debt);
+  document.getElementById('z-nisab-s').textContent = nisabSilver!==null ? fmt(nisabSilver) : '—';
+  document.getElementById('z-nisab-g').textContent = nisabGold!==null ? fmt(nisabGold) : '—';
+}
+
+/* ---------------- TAX ---------------- */
+let taxMode = 'annual';
+document.getElementById('t-seg').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  taxMode = btn.dataset.mode;
+  document.querySelectorAll('#t-seg button').forEach(b=>b.classList.toggle('active', b===btn));
+  document.getElementById('t-label').textContent = taxMode==='annual' ? 'Annual taxable salary — PKR' : 'Monthly taxable salary — PKR';
+});
+
+function slabTax(annual){
+  const slabs = [
+    [0, 600000, 0, 0],
+    [600000, 1200000, 0.01, 0],
+    [1200000, 2200000, 0.11, 6000],
+    [2200000, 3200000, 0.23, 116000],
+    [3200000, 4100000, 0.30, 346000],
+    [4100000, Infinity, 0.35, 616000]
+  ];
+  let tax = 0;
+  for(const [lo,hi,rate,fixed] of slabs){
+    if(annual>lo){
+      tax = fixed + (Math.min(annual,hi)-lo)*rate;
+    }
+  }
+  if(annual>10000000){
+    tax += tax*0.09;
+  }
+  return tax;
+}
+
+function calcTax(){
+  const raw = parseFloat(document.getElementById('t-income').value)||0;
+  const annual = taxMode==='monthly' ? raw*12 : raw;
+  const tax = slabTax(annual);
+  const monthlyTax = tax/12;
+  const netAnnual = annual - tax;
+  const netMonthly = netAnnual/12;
+  const rate = annual>0 ? (tax/annual*100) : 0;
+
+  document.getElementById('t-result').style.display='block';
+  document.getElementById('t-annual-tax').textContent = fmt(tax);
+  document.getElementById('t-monthly-tax').textContent = fmt(monthlyTax);
+  document.getElementById('t-net-annual').textContent = fmt(netAnnual);
+  document.getElementById('t-net-monthly').textContent = fmt(netMonthly);
+  document.getElementById('t-rate').textContent = rate.toFixed(2)+'%';
+}
+
+/* ---------------- UNIT CONVERTER ---------------- */
+const UNITS = {
+  length: {
+    base: 'meter',
+    factors: { meter:1, kilometer:1000, centimeter:0.01, millimeter:0.001, mile:1609.344, yard:0.9144, foot:0.3048, inch:0.0254 },
+    labels: { meter:'Meter', kilometer:'Kilometer', centimeter:'Centimeter', millimeter:'Millimeter', mile:'Mile', yard:'Yard', foot:'Foot', inch:'Inch' }
+  },
+  weight: {
+    base: 'gram',
+    factors: { gram:1, kilogram:1000, pound:453.592, ounce:28.3495, tola:11.6638, seer:933.1, maund:37324 },
+    labels: { gram:'Gram', kilogram:'Kilogram', pound:'Pound (lb)', ounce:'Ounce', tola:'Tola', seer:'Seer', maund:'Maund' }
+  },
+  temp: {
+    base: 'celsius',
+    factors: null,
+    labels: { celsius:'Celsius (°C)', fahrenheit:'Fahrenheit (°F)', kelvin:'Kelvin (K)' }
+  }
+};
+
+function populateUnitSelects(cat){
+  const fromSel = document.getElementById('u-from');
+  const toSel = document.getElementById('u-to');
+  fromSel.innerHTML=''; toSel.innerHTML='';
+  const labels = UNITS[cat].labels;
+  Object.keys(labels).forEach((key, i)=>{
+    const o1 = document.createElement('option'); o1.value=key; o1.textContent=labels[key];
+    const o2 = document.createElement('option'); o2.value=key; o2.textContent=labels[key];
+    fromSel.appendChild(o1); toSel.appendChild(o2);
+  });
+  toSel.selectedIndex = Math.min(1, toSel.options.length-1);
+}
+
+let unitCat = 'length';
+document.getElementById('u-seg').addEventListener('click',(e)=>{
+  const btn = e.target.closest('button'); if(!btn) return;
+  unitCat = btn.dataset.cat;
+  document.querySelectorAll('#u-seg button').forEach(b=>b.classList.toggle('active', b===btn));
+  populateUnitSelects(unitCat);
+  document.getElementById('u-result').style.display='none';
+});
+populateUnitSelects(unitCat);
+
+function tempToCelsius(v,unit){
+  if(unit==='celsius') return v;
+  if(unit==='fahrenheit') return (v-32)*5/9;
+  if(unit==='kelvin') return v-273.15;
+}
+function celsiusTo(v,unit){
+  if(unit==='celsius') return v;
+  if(unit==='fahrenheit') return v*9/5+32;
+  if(unit==='kelvin') return v+273.15;
+}
+
+function calcUnit(){
+  const val = parseFloat(document.getElementById('u-value').value)||0;
+  const from = document.getElementById('u-from').value;
+  const to = document.getElementById('u-to').value;
+  let out;
+  if(unitCat==='temp'){
+    out = celsiusTo(tempToCelsius(val, from), to);
+  } else {
+    const f = UNITS[unitCat].factors;
+    const inBase = val * f[from];
+    out = inBase / f[to];
+  }
+  document.getElementById('u-result').style.display='block';
+  document.getElementById('u-out').textContent = (Math.round(out*10000)/10000).toLocaleString('en-PK');
+  document.getElementById('u-out-label').textContent = `${val} ${UNITS[unitCat].labels[from]} = ${UNITS[unitCat].labels[to]}`;
+  document.getElementById('u-note').textContent = unitCat==='weight' && (from==='tola'||to==='tola'||from==='seer'||to==='seer'||from==='maund'||to==='maund')
+    ? 'Tola/seer/maund ke standard values ilaqai taur par thora mukhtalif ho sakte hain.' : '';
+}
+
+/* ---------------- AGE ---------------- */
+function calcAge(){
+  const dobVal = document.getElementById('a-dob').value;
+  if(!dobVal) return;
+  const dob = new Date(dobVal+'T00:00:00');
+  const now = new Date();
+
+  let years = now.getFullYear()-dob.getFullYear();
+  let months = now.getMonth()-dob.getMonth();
+  let days = now.getDate()-dob.getDate();
+  if(days<0){
+    months--;
+    const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+    days += prevMonth;
+  }
+  if(months<0){
+    years--; months+=12;
+  }
+
+  const msPerDay = 1000*60*60*24;
+  const totalDays = Math.floor((now-dob)/msPerDay);
+
+  let nextBday = new Date(now.getFullYear(), dob.getMonth(), dob.getDate());
+  if(nextBday < now) nextBday.setFullYear(now.getFullYear()+1);
+  const daysUntil = Math.ceil((nextBday-now)/msPerDay);
+
+  const weekdayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+  document.getElementById('a-result').style.display='block';
+  document.getElementById('a-main').textContent = `${years} saal, ${months} mahine, ${days} din`;
+  document.getElementById('a-days').textContent = totalDays.toLocaleString('en-PK') + ' din';
+  document.getElementById('a-next').textContent = nextBday.toLocaleDateString('en-PK', {day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('a-until').textContent = daysUntil + ' din';
+  document.getElementById('a-weekday').textContent = weekdayNames[dob.getDay()];
+}
+
+/* init */
+showPanel('home');
+</script>
+</body>
+</html>
